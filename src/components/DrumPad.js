@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { keyUpPad } from "../redux/actions/action";
+import { keyUpPad, keyDownPad, displaySong } from "../redux/actions/action";
 
 function DrumPad(props) {
   const { value, music } = props;
-  const [isClicked, setisClicked] = useState(false);
+  const firstRenderRef = useRef(true);
+  let x = document.getElementById(value)
+  // const [isClicked, setisClicked] = useState(false);
   let isActive = useSelector((state) => state["clicked" + value]);
   let audio = new Audio(`audio/${music}`);
   audio.volume = useSelector((state) => state.volume);
@@ -14,36 +16,51 @@ function DrumPad(props) {
   };
 
   const toggleClass = (e) => {
-    setisClicked(true);
-    audio.play();
-    setTimeout(() => {
-      setisClicked(false);
-    }, 100);
+    dispatch(keyDownPad(value));
+    // audio.play();
   };
+
+  const toggleClassUp = () => {
+    if (isActive) {
+      audio.play();
+      x.play();
+      dispatch(displaySong(music.split(".")[0]));
+    }
+    setTimeout(() => {
+      dispatch(keyUpPad(value));
+      // dispatch(displaySong(""));
+    }, 500);
+  };
+
   const dispatch = useDispatch();
 
   useEffect(() => {
-    toggleClass();
-    dispatch(keyUpPad(value));
+    if (firstRenderRef.current) {
+      firstRenderRef.current = false;
+    } else {
+      toggleClassUp();
+      console.log("testsssss " + value);
+    }
+
+    // dispatch(keyUpPad(value));
   }, [isActive]);
 
   return (
-    <div className="col-2 p-1" onClick={(e) => toggleClass(e)} id={value}>
+    <div
+      className="col-2 p-1 drum-pad"
+      onClick={(e) => toggleClass(e)}
+      id={music.split(".")[0]}
+    >
       <p
         className={
-          isClicked
+          isActive
             ? "drum-pad-style text-center drum-pad-shadow-desable"
             : "drum-pad-style text-center"
         }
       >
         {value}
       </p>
-      {/* <audio controls>
-        <source
-          src={"../audio/"+music}
-          type="audio/mpeg"
-        ></source>
-      </audio> */}
+      <audio className="clip" src={"audio/" + music} id={value}></audio>
     </div>
   );
 }

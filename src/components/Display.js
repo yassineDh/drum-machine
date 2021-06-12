@@ -4,9 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { keyDownPad } from "../redux/actions/action";
 
 function Display() {
-  
-
   const arrayId = ["Q", "W", "E", "A", "S", "D", "Z", "X", "C"];
+  const arrayCode = [81, 87, 69, 65, 83, 68, 90, 88, 67];
+  let choiceFirst =
+    useSelector((state) => state.playList) == "first" ? true : false;
   const Playlist = {
     first: [
       "mixkit-cool-guitar-riff-2321.mp3",
@@ -35,8 +36,9 @@ function Display() {
 
   const toggleClasskey = (e) => {
     for (let i = 0; i < arrayId.length; i++) {
-      if (e.key === arrayId[i].toLowerCase() || e.key === arrayId[i]) {
+      if (e.keyCode === arrayCode[i]) {
         console.log("pressed " + arrayId[i]);
+        console.log(e);
         dispatch(keyDownPad(arrayId[i]));
       }
     }
@@ -51,20 +53,29 @@ function Display() {
   }, []);
 
   return (
-    <div id="display" className="col-8">
-     
+    <div className="col-8">
       <div className="container-fluid">
         <div className="row">
           {arrayId.map((elt, i) => {
             if ((i + 1) % 3 == 0) {
               return (
                 <React.Fragment>
-                  <DrumPad key={elt} value={elt} music={Playlist.first[i]} />
+                  <DrumPad
+                    key={elt}
+                    value={elt}
+                    music={choiceFirst ? Playlist.first[i] : Playlist.second[i]}
+                  />
                   <div className="w-100"></div>
                 </React.Fragment>
               );
             }
-            return <DrumPad key={elt} value={elt} music={Playlist.first[i]} />;
+            return (
+              <DrumPad
+                key={elt}
+                value={elt}
+                music={choiceFirst ? Playlist.first[i] : Playlist.second[i]}
+              />
+            );
           })}
         </div>
       </div>
